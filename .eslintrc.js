@@ -29,8 +29,7 @@ module.exports = {
     'react',
   ],
   rules: {
-    _id: 'off',
-    'no-console': 'warn',
+    'no-console': 'off',
     'no-underscore-dangle': ['error', { allow: ['_id'] }],
   },
 };
