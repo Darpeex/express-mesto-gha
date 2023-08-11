@@ -1,7 +1,7 @@
 {
   "name": "express-mesto-gha",
   "version": "1.0.0",
-  "description": "[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml) # Проект Mesto фронтенд + бэкенд",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "lint": "npx eslint",
@@ -18,8 +18,9 @@
   "bugs": {
     "url": "https://github.com/Darpeex/express-mesto-gha/issues"
   },
-  "homepage": "https://github.com/Darpeex/express-mesto-gha#readme",
+  "homepage": "http://localhost:3000/",
   "dependencies": {
+    "body-parser": "^1.20.2",
     "editorconfig": "^2.0.0",
     "express": "^4.18.2",
     "mongoose": "^7.4.2"
