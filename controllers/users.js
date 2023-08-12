@@ -3,14 +3,14 @@ const User = require('../models/user');
 // возвращает всех пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .then((users) => res.status(200).send({ data: users }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' })); // или err.message
 };
 
 // возвращает пользователя по _id
 module.exports.getUser = (req, res) => {
-  const { ObjectId } = req.params;
-  User.findById({ _id: ObjectId })
+  const { userId } = req.params;
+  User.findById({ _id: userId })
     .then((user) => {
       if (user) {
         res.send({ data: user });
@@ -26,7 +26,7 @@ module.exports.createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => {
-      res.send({ data: user });
+      res.status(201).send({ data: user });
     }).catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные пользователя' });
@@ -44,7 +44,7 @@ module.exports.updateUserInfo = (req, res) => {
   User.findByIdAndUpdate(id, updatedFields) // находим пользователя по id и передаём новые данные
     .then((user) => { // если обновление профиля выполнено успешно, выполнится след. блок
       if (user) { // если возвращенное значение user не пустое, отправим клиенту новые данные
-        res.send({ data: user });
+        res.status(200).send({ data: user });
       } else { // иначе, вернём ошибку с кодом '404' и сообщением 'пользователь не найден'
         res.status(404).send({ message: 'Пользователь не найден' });
       } // обработчик ошибок во время выполнения операции
@@ -65,7 +65,7 @@ module.exports.updateUserAvatar = (req, res) => {
   User.updateOne({ _id: id }, updatedField)
     .then((avatar) => {
       if (avatar) {
-        res.send({ data: avatar });
+        res.status(200).send({ data: avatar });
       } else {
         res.status(404).send({ message: 'Пользователь не найден' });
       }

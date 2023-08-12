@@ -4,7 +4,7 @@ const Card = require('../models/card');
 // возвращает все карточки
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => res.status(200).send({ data: cards }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' })); // или err.message
 };
 
@@ -14,7 +14,7 @@ module.exports.createCard = (req, res) => {
 
   const { name, link } = req.body;
   Card.create({ name, link })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => { // если введённые данные некорректны, возвращается ошибка с кодом '400'
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные пользователя' });
@@ -33,7 +33,7 @@ module.exports.deleteCard = (req, res) => {
       if (result.deletedCount === 0) { // Проверка удаления карточки
         return res.status(404).send({ message: 'Карточка не найдена' });
       }
-      res.send({ message: 'Карточка успешно удалена' });
+      res.status(200).send({ message: 'Карточка успешно удалена' });
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
@@ -49,7 +49,7 @@ module.exports.likeCard = (req, res) => {
       if (!card) {
         return res.status(404).send({ message: 'Карточка не найдена' });
       }
-      res.send({ message: 'Лайк поставлен' });
+      res.status(200).send({ message: 'Лайк поставлен' });
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
@@ -65,7 +65,7 @@ module.exports.dislikeCard = (req, res) => {
       if (!card) {
         return res.status(404).send({ message: 'Карточка не найдена' });
       }
-      res.send({ message: 'Лайк удален' });
+      res.status(200).send({ message: 'Лайк удален' });
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };

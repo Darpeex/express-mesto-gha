@@ -1,21 +1,22 @@
 // const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
+const userRouter = require('./routes/users');
+const cardRouter = require('./routes/cards');
 
-const { PORT = 3000 } = process.env;
 const app = express();
+const { PORT = 3000 } = process.env;
 
-app.use(bodyParser.json()); // для собирания JSON-формата
-app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
+app.use(express.json()); // для собирания JSON-формата
+app.use(express.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
 });
 
-app.use('/', require('./routes/cards'));
-app.use('/', require('./routes/users'));
+// подключаем роуты
+app.use(userRouter);
+app.use(cardRouter);
 
 app.use((req, res, next) => {
   req.user = {
@@ -27,6 +28,5 @@ app.use((req, res, next) => {
 
 // app.use(express.static(path.join(__dirname, 'public')));
 app.listen(PORT, () => {
-  console.log('Ссылка на сервер:');
-  console.log(`http://localhost:${PORT}/`);
+  console.log(`Порт приложения: ${PORT}`);
 });
