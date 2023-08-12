@@ -1,5 +1,4 @@
 /* eslint-disable consistent-return */ // убирает подчёркивание со стрелочной функции 'строка 33'
-/* eslint-disable no-unused-vars */ // убирает подчёркивание с неиспользуемых свойств
 const Card = require('../models/card');
 
 // возвращает все карточки
