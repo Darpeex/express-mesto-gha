@@ -15,8 +15,16 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-// app.use('/cards', require('./routes/cards'));
+app.use('/', require('./routes/cards'));
 app.use('/', require('./routes/users'));
+
+app.use((req, res, next) => {
+  req.user = {
+    _id: '64d69b73ce1457bfc056584c', // вставьте сюда _id созданного в предыдущем пункте пользователя
+  };
+
+  next();
+});
 
 // app.use(express.static(path.join(__dirname, 'public')));
 app.listen(PORT, () => {
