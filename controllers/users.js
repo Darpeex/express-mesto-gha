@@ -44,9 +44,11 @@ module.exports.createUser = (req, res) => {
 // обновляет профиль
 module.exports.updateUserInfo = (req, res) => {
   const id = req.user._id; // извлекаем id пользователя из объекта req.user
-  const updatedInfo = req.body; // req.body содержит обновленные данные профиля пользователя
+  const options = { runValidators: true, new: true }; // включена валидация и сразу обновление
+  // req.body содержит обновленные данные профиля пользователя
+  const updatedInfo = { name: req.body.name, about: req.body.about };
 
-  return User.findByIdAndUpdate(id, updatedInfo, { new: true }) // передаём id и новые данные
+  return User.findByIdAndUpdate(id, updatedInfo, options) // передаём id и новые данные
     .then((user) => { // если обновление профиля выполнено успешно, выполнится след. блок
       if (user === null) { // если возвращенное значение user пустое, ошибка
         return res.status(404).send({ message: 'Пользователь не найден' });
@@ -64,9 +66,10 @@ module.exports.updateUserInfo = (req, res) => {
 // обновляет аватар
 module.exports.updateUserAvatar = (req, res) => {
   const id = req.user._id;
+  const options = { runValidators: true, new: true };
   const updatedAvatar = { avatar: req.body.avatar };
 
-  return User.findByIdAndUpdate(id, updatedAvatar, { new: true })
+  return User.findByIdAndUpdate(id, updatedAvatar, options)
     .then((user) => { // если обновление профиля выполнено успешно, выполнится след. блок
       if (user === null) { // если возвращенное значение user пустое, ошибка
         return res.status(404).send({ message: 'Пользователь не найден' });
