@@ -3,35 +3,35 @@ const User = require('../models/user');
 // возвращает всех пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' })); // или err.message
+    .then((users) => res.status(200).send({ users }))
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
 
 // возвращает пользователя по _id
-module.exports.getUser = (req, res) => {
+module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
-  User.findById({ _id: userId })
+
+  return User.findById({ _id: userId })
     .then((user) => {
-      if (user) {
-        res.send({ data: user });
-      } else {
-        res.status(404).send({ message: 'Пользователь не найден' });
+      if (user === null) {
+        return res.status(404).send({ message: 'Пользователь не найден' });
       }
-    }).catch((err) => res.status(500).send({ message: err.message }));
+      return res.status(200).send(user);
+    })
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
 
 // создаёт пользователя
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => {
-      res.status(201).send({ data: user });
-    }).catch((err) => {
+  return User.create({ name, about, avatar })
+    .then((user) => res.status(201).send({ user }))
+    .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные пользователя' });
+        res.status(400).send({ message: 'Некорректные данные пользователя' });
       } else {
-        res.status(500).send({ message: err.message });
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };

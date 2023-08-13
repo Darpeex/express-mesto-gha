@@ -17,11 +17,7 @@ app.use(express.urlencoded({ extended: true })); // для приёма веб-�
 
 mongoose.connect(BD_URL, {
   useNewUrlParser: true,
-}).then(() => console.log('Успешное подключение к БД'));
-
-// подключаем роуты
-app.use(userRouter);
-app.use(cardRouter);
+}).then(() => console.log('Подключились к БД'));
 
 app.use((req, res, next) => {
   req.user = {
@@ -30,6 +26,10 @@ app.use((req, res, next) => {
 
   next();
 });
+
+// подключаем роуты
+app.use(userRouter);
+app.use(cardRouter);
 
 // app.use(express.static(path.join(__dirname, 'public')));
 app.listen(PORT, () => {
