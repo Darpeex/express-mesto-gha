@@ -1,4 +1,5 @@
 /* eslint-disable consistent-return */ // убирает подчёркивание со стрелочной функции 'строка 33'
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 
 // возвращает все карточки
@@ -26,16 +27,20 @@ module.exports.createCard = (req, res) => {
 
 // удаляет карточку по идентификатору
 module.exports.deleteCard = (req, res) => {
-  const { id } = req.body;
+  const { cardId } = req.params;
 
-  Card.deleteOne({ _id: id })
-    .then((result) => {
-      if (result.deletedCount === 0) { // Проверка удаления карточки
+  if (!cardId || !mongoose.Types.ObjectId.isValid(cardId)) {
+    return res.status(400).send({ message: 'Некорректный ID карточки' });
+  }
+
+  return Card.findByIdAndRemove({ _id: cardId })
+    .then((card) => {
+      if (card === null) {
         return res.status(404).send({ message: 'Карточка не найдена' });
       }
       res.status(200).send({ message: 'Карточка успешно удалена' });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
 
 // поставить лайк карточке
@@ -51,7 +56,7 @@ module.exports.likeCard = (req, res) => {
       }
       res.status(200).send({ message: 'Лайк поставлен' });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
 
 // убрать лайк с карточки
@@ -67,5 +72,5 @@ module.exports.dislikeCard = (req, res) => {
       }
       res.status(200).send({ message: 'Лайк удален' });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
