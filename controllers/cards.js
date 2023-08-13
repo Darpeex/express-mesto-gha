@@ -10,8 +10,6 @@ module.exports.getCards = (req, res) => {
 
 // создаёт карточку
 module.exports.createCard = (req, res) => {
-  console.log(req.user._id); // _id доступен
-
   const { name, link } = req.body;
   Card.create({ name, link })
     .then((card) => res.status(201).send({ data: card }))
