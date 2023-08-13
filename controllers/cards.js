@@ -28,19 +28,21 @@ module.exports.createCard = (req, res) => {
 // удаляет карточку по идентификатору
 module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
+  const options = { runValidators: true, new: true };
 
-  if (!cardId || !mongoose.Types.ObjectId.isValid(cardId)) {
-    return res.status(400).send({ message: 'Некорректный ID карточки' });
-  }
-
-  return Card.findByIdAndRemove({ _id: cardId })
+  return Card.findByIdAndRemove({ _id: cardId }, options)
     .then((card) => {
       if (card === null) {
         return res.status(404).send({ message: 'Карточка не найдена' });
       }
       res.status(200).send({ message: 'Карточка успешно удалена' });
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch(() => {
+      if (!cardId || !mongoose.Types.ObjectId.isValid(cardId)) {
+        return res.status(400).send({ message: 'Некорректный ID карточки' });
+      }
+      return res.status(500).send({ message: 'Ошибка сервера' });
+    });
 };
 
 // поставить лайк карточке
