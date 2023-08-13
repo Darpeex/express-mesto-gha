@@ -1,18 +1,23 @@
+/* eslint-disable no-unused-vars */ // подчёркивание всех неиспользуемых свойств (dotenv)
 // const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv').config();
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
 const app = express();
-const { PORT = 3000 } = process.env;
+const {
+  PORT = 3000,
+  BD_URL = 'mongodb://localhost:27017/mestodb',
+} = process.env;
 
 app.use(express.json()); // для собирания JSON-формата
 app.use(express.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+mongoose.connect(BD_URL, {
   useNewUrlParser: true,
-});
+}).then(() => console.log('Успешное подключение к БД'));
 
 // подключаем роуты
 app.use(userRouter);
