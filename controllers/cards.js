@@ -1,5 +1,4 @@
 /* eslint-disable consistent-return */ // убирает подчёркивание со стрелочной функции 'строка 33'
-const mongoose = require('mongoose');
 const Card = require('../models/card');
 
 // возвращает все карточки
@@ -37,9 +36,9 @@ module.exports.deleteCard = (req, res) => {
       }
       res.status(200).send({ message: 'Карточка успешно удалена' });
     })
-    .catch(() => {
-      if (!cardId || !mongoose.Types.ObjectId.isValid(cardId)) {
-        return res.status(400).send({ message: 'Некорректный ID карточки' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Некорректный Id карточки' });
       }
       return res.status(500).send({ message: 'Ошибка сервера' });
     });
@@ -58,7 +57,12 @@ module.exports.likeCard = (req, res) => {
       }
       res.status(200).send({ message: 'Лайк поставлен' });
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Некорректный Id карточки' });
+      }
+      return res.status(500).send({ message: 'Ошибка сервера' });
+    });
 };
 
 // убрать лайк с карточки
@@ -74,5 +78,10 @@ module.exports.dislikeCard = (req, res) => {
       }
       res.status(200).send({ message: 'Лайк удален' });
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Некорректный Id карточки' });
+      }
+      return res.status(500).send({ message: 'Ошибка сервера' });
+    });
 };
