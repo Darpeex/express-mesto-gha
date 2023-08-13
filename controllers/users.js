@@ -18,7 +18,12 @@ module.exports.getUserById = (req, res) => {
       }
       return res.status(200).send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Некорректный Id' });
+      }
+      return res.status(500).send({ message: 'Ошибка сервера' });
+    });
 };
 
 // создаёт пользователя
@@ -38,42 +43,40 @@ module.exports.createUser = (req, res) => {
 
 // обновляет профиль
 module.exports.updateUserInfo = (req, res) => {
-  const { id } = req.user; // извлекаем id пользователя из объекта req.user
-  const updatedFields = req.body; // req.body содержит обновленные данные профиля пользователя
+  const id = req.user._id; // извлекаем id пользователя из объекта req.user
+  const updatedInfo = req.body; // req.body содержит обновленные данные профиля пользователя
 
-  User.findByIdAndUpdate(id, updatedFields) // находим пользователя по id и передаём новые данные
+  return User.findByIdAndUpdate(id, updatedInfo, { new: true }) // передаём id и новые данные
     .then((user) => { // если обновление профиля выполнено успешно, выполнится след. блок
-      if (user) { // если возвращенное значение user не пустое, отправим клиенту новые данные
-        res.status(200).send({ data: user });
-      } else { // иначе, вернём ошибку с кодом '404' и сообщением 'пользователь не найден'
-        res.status(404).send({ message: 'Пользователь не найден' });
-      } // обработчик ошибок во время выполнения операции
+      if (user === null) { // если возвращенное значение user пустое, ошибка
+        return res.status(404).send({ message: 'Пользователь не найден' });
+      } // иначе отправим клиенту новые данные
+      return res.status(200).send(user);
     }).catch((err) => { // если введённые данные некорректны, возвращается ошибка с кодом '400'
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные пользователя' });
       } else { // иначе, по-умолчанию, ошибка с кодом '500'
-        res.status(500).send({ message: err.message });
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };
 
 // обновляет аватар
 module.exports.updateUserAvatar = (req, res) => {
-  const { id } = req.user._id;
-  const updatedField = req.body.avatar;
+  const id = req.user._id;
+  const updatedAvatar = { avatar: req.body.avatar };
 
-  User.updateOne({ _id: id }, updatedField)
-    .then((avatar) => {
-      if (avatar) {
-        res.status(200).send({ data: avatar });
-      } else {
-        res.status(404).send({ message: 'Пользователь не найден' });
-      }
+  return User.findByIdAndUpdate(id, updatedAvatar, { new: true })
+    .then((user) => { // если обновление профиля выполнено успешно, выполнится след. блок
+      if (user === null) { // если возвращенное значение user пустое, ошибка
+        return res.status(404).send({ message: 'Пользователь не найден' });
+      } // иначе отправим клиенту новые данные
+      return res.status(200).send(user);
     }).catch((err) => { // если введённые данные некорректны, возвращается ошибка с кодом '400'
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else { // иначе, по-умолчанию, ошибка с кодом '500'
-        res.status(500).send({ message: err.message });
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };
