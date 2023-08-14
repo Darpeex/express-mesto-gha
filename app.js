@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */ // подчёркивание всех неиспользуемых свойств (dotenv)
 // const path = require('path');
+const helmet = require('helmet');
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv').config();
@@ -11,6 +12,8 @@ const {
   PORT = 3000,
   BD_URL = 'mongodb://localhost:27017/mestodb',
 } = process.env;
+
+app.use(helmet()); // use helmet middleware
 
 app.use(express.json()); // для собирания JSON-формата
 app.use(express.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
