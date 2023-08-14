@@ -1,12 +1,11 @@
 module.exports = {
   env: {
-    browser: true,
+    browser: false,
     es2021: true,
   },
   extends: [
     'airbnb-base',
     'eslint:recommended',
-    'plugin:react/recommended',
   ],
   overrides: [
     {
@@ -25,9 +24,6 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: [
-    'react',
-  ],
   rules: {
     'no-console': 'off',
     'no-underscore-dangle': ['error', { allow: ['_id'] }],
