@@ -28,13 +28,12 @@ module.exports.deleteCard = (req, res) => {
   const options = { runValidators: true, new: true };
 
   return Card.findByIdAndRemove({ _id: cardId }, options)
-    .then((card) => {
-      if (card === null) {
+    .orFail(new Error('NotValidId'))
+    .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }))
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
         return res.status(404).send({ message: 'Карточка не найдена' });
       }
-      res.status(200).send({ message: 'Карточка успешно удалена' });
-    })
-    .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Некорректный Id карточки' });
       }
