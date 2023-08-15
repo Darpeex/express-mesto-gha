@@ -1,10 +1,10 @@
 /* eslint-disable consistent-return */ // убирает подчёркивание со стрелочной функции 'строка 33'
-const Card = require('../models/card');
+const Card = require('../models/card'); // импортируем модель
 
 // возвращает все карточки
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.status(200).send({ data: cards }))
+    .then((cards) => res.status(200).send({ data: cards })) // успешно, возвращаем карточки
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' })); // или err.message
 };
 
@@ -14,7 +14,7 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => { // если введённые данные некорректны, возвращается ошибка с кодом '400'
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') { // если тип ошибки совпадает с 'ValidationError'
         res.status(400).send({ message: 'Переданы некорректные данные пользователя' });
       } else { // иначе, по-умолчанию, ошибка с кодом '500'
         res.status(500).send({ message: err.message });
@@ -24,7 +24,9 @@ module.exports.createCard = (req, res) => {
 
 // удаляет карточку по идентификатору
 module.exports.deleteCard = (req, res) => {
-  const { cardId } = req.params;
+  // req.params содержит параметры маршрута, которые передаются в URL
+  const { cardId } = req.params; // извлекаем значение cardId из объекта req.params
+  // runValidators проверяет поля перед сохранением в БД, new - возвращает обновленный документ
   const options = { runValidators: true, new: true };
 
   return Card.findByIdAndRemove({ _id: cardId }, options)

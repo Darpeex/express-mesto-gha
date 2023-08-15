@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const router = require('express').Router(); // создание нового экземпляра маршрутизатора заместо app
 const {
   getUsers, getUserById, createUser, updateUserInfo, updateUserAvatar,
 } = require('../controllers/users');

@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const User = require('../models/user'); // импортируем модель
 
 // возвращает всех пользователей
 module.exports.getUsers = (req, res) => {
@@ -9,6 +9,7 @@ module.exports.getUsers = (req, res) => {
 
 // возвращает пользователя по _id
 module.exports.getUserById = (req, res) => {
+  // req.params содержит параметры маршрута, которые передаются в URL
   const { userId } = req.params;
 
   return User.findById({ _id: userId })
@@ -19,7 +20,7 @@ module.exports.getUserById = (req, res) => {
       return res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'CastError') { // если тип ошибки совпадает с 'CastError'
         return res.status(400).send({ message: 'Некорректный Id пользователя' });
       }
       return res.status(500).send({ message: 'Ошибка сервера' });
@@ -44,6 +45,7 @@ module.exports.createUser = (req, res) => {
 // обновляет профиль
 module.exports.updateUserInfo = (req, res) => {
   const id = req.user._id; // извлекаем id пользователя из объекта req.user
+  // runValidators проверяет поля перед сохранением в БД, new - возвращает обновленный документ
   const options = { runValidators: true, new: true }; // включена валидация и сразу обновление
   // req.body содержит обновленные данные профиля пользователя
   const updatedInfo = { name: req.body.name, about: req.body.about };

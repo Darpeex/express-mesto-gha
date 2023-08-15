@@ -1,28 +1,28 @@
-/* eslint-disable no-unused-vars */ // подчёркивание всех неиспользуемых свойств (dotenv)
 // const path = require('path');
-const helmet = require('helmet');
-const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv').config();
+const helmet = require('helmet'); // модуль для обеспечения безопасности приложения Express
+const express = require('express'); // фреймворк для создания веб-приложений на Node.js
+const mongoose = require('mongoose'); // модуль для работы с базой данных MongoDB
+
+// импорт маршрутов для пользователей и карточек:
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
-const app = express();
-const {
+const app = express(); // cоздаём объект приложения
+const { // задаём постоянные для удобства использования
   PORT = 3000,
   BD_URL = 'mongodb://localhost:27017/mestodb',
-} = process.env;
+} = process.env; // свойство для доступа к переменным среды ОС
 
-app.use(helmet()); // use helmet middleware
+app.use(helmet()); // использование модуля безопасности
 
 app.use(express.json()); // для собирания JSON-формата
 app.use(express.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 
-mongoose.connect(BD_URL, {
-  useNewUrlParser: true,
+mongoose.connect(BD_URL, { // подключение к mongodb
+  useNewUrlParser: true, // обеспечивает совместимость с будущими версиями MongoDB
 }).then(() => console.log('Подключились к БД'));
 
-app.use((req, res, next) => {
+app.use((req, res, next) => { // middleware с информацией о пользователей для дальнейших запросов
   req.user = {
     _id: '64d69b73ce1457bfc056584c', // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 app.use(userRouter);
 app.use(cardRouter);
 
-app.use((req, res, next) => {
+app.use((req, res) => { // предупреждаем переход по отсутсвующему пути
   res.status(404).json({ message: 'Путь не найден' });
 });
 

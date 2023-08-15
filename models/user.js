@@ -1,10 +1,12 @@
-const mongoose = require('mongoose');
-const validator = require('validator');
+const mongoose = require('mongoose'); // нужна для создании схем
+const validator = require('validator'); // библиотека для валидации данных
 
+// Создаём схему и задаём её поля
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      // при не соответствии условиям в [] - выдаются ошибки
       required: [true, 'Поле "name" должно быть заполнено'],
       minlength: [2, 'Минимальная длина поля "name" - 2'],
       maxlength: [30, 'Максимальная длина поля "name" - 30'],
@@ -27,5 +29,5 @@ const userSchema = new mongoose.Schema(
   { versionKey: false },
 );
 
-const User = mongoose.model('user', userSchema);
-module.exports = User;
+const User = mongoose.model('user', userSchema); // создание модели
+module.exports = User; // экспорт модели
