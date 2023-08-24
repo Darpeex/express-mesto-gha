@@ -1,3 +1,5 @@
+/* eslint-disable object-curly-newline */ // откл. предупреждение о переносе с множеством аргументов
+const bcrypt = require('bcryptjs'); // импортируем bcrypt
 const User = require('../models/user'); // импортируем модель
 
 // возвращает всех пользователей
@@ -29,9 +31,9 @@ module.exports.getUserById = (req, res) => {
 
 // создаёт пользователя
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  return User.create({ name, about, avatar })
+  const { name, about, avatar, email, password } = req.body;
+  bcrypt.hash(password, 10) // хешируем пароль
+    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
     .then((user) => res.status(201).send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
