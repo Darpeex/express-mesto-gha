@@ -1,6 +1,7 @@
+/* eslint-disable func-names */ // чтобы не ругался на функцию строка '50'
 const mongoose = require('mongoose'); // нужна для создании схем
 const validator = require('validator'); // библиотека для валидации данных
-// const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken (jwt)
+const bcrypt = require('bcryptjs'); // импортируем bcrypt для хеширования
 
 // Создаём схему и задаём её поля
 const userSchema = new mongoose.Schema(
@@ -32,7 +33,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       validate: {
         validator: (value) => validator.isEmail(value),
-        message: 'Некорректный URL',
+        message: 'Некорректный Email',
       },
     },
     password: {
@@ -44,23 +45,23 @@ const userSchema = new mongoose.Schema(
   { versionKey: false },
 );
 
+// добавим findUserByCredentials схеме пользователя; функция не стрелочная, т.к. нам нужен this
+userSchema.statics.findUserByCredentials = function (email, password) {
+  // попытаемся найти пользователя по почте
+  return this.findOne({ email }) // this — это модель User
+    .then((user) => {
+      if (!user) { // если не нашёлся — отклоняем промис
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      } // нашёлся — сравниваем хеши
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) { // если пароли не соответствуют - отклоняем промис
+            return Promise.reject(new Error('Неправильные почта или пароль'));
+          }
+          return user; // так user доступен
+        });
+    });
+};
+
 const User = mongoose.model('user', userSchema); // создание модели
 module.exports = User; // экспорт модели
-
-// module.exports.login = (req, res) => {
-//   const { email, password } = req.body;
-
-//   return User.findUserByCredentials(email, password)
-//     .then((user) => {
-//       // создадим токен
-//       const token = jwt.sign({ _id: user._id }, 'some-secret-key', {expiresIn: '7d'} );
-
-//       // вернём токен
-//       res.send({ token });
-//     })
-//     .catch((err) => {
-//       res
-//         .status(401)
-//         .send({ message: err.message });
-//     });
-// };

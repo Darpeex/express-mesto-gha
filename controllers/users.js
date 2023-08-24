@@ -1,6 +1,8 @@
+/* eslint-disable consistent-return */ // откл. ругание на стрелочную функцию строка '103'
 /* eslint-disable object-curly-newline */ // откл. предупреждение о переносе с множеством аргументов
 const bcrypt = require('bcryptjs'); // импортируем bcrypt
-const User = require('../models/user'); // импортируем модель
+const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken (jwt)
+const User = require('../models/user'); // импортируем модель пользователя
 
 // возвращает всех пользователей
 module.exports.getUsers = (req, res) => {
@@ -85,5 +87,24 @@ module.exports.updateUserAvatar = (req, res) => {
       } else { // иначе, по-умолчанию, ошибка с кодом '500'
         res.status(500).send({ message: 'Ошибка сервера' });
       }
+    });
+};
+
+// проверка данных пользователя
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const { NODE_ENV, JWT_SECRET } = process.env;
+      const token = jwt.sign( // создадим токен
+        { _id: user._id }, // в строке ниже используем JWT_SECRET, если находимся в среде production
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', // а значение 'dev-secret', если находимся в другой среде (например, development)
+        { expiresIn: '7d' }, // JWT создаётся сроком на неделю
+      );
+      res.send({ token }); // вернём токен
+    })
+    .catch((err) => { // ошибка аутентификации
+      res.status(401).send({ message: err.message });
     });
 };
