@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */ // откл. ругание на стрелочную функцию строка '103'
 /* eslint-disable object-curly-newline */ // откл. предупреждение о переносе с множеством аргументов
-const bcrypt = require('bcryptjs'); // импортируем bcrypt
+const bcrypt = require('bcrypt'); // импортируем bcrypt
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken (jwt)
 const User = require('../models/user'); // импортируем модель пользователя
 
