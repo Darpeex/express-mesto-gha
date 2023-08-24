@@ -1,5 +1,6 @@
 const mongoose = require('mongoose'); // нужна для создании схем
 const validator = require('validator'); // библиотека для валидации данных
+// const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken (jwt)
 
 // Создаём схему и задаём её поля
 const userSchema = new mongoose.Schema(
@@ -19,11 +20,25 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
+      required: [true, 'Поле "avatar" должно быть заполнено'],
       validate: {
-        validator: (v) => validator.isURL(v),
+        validator: (value) => validator.isURL(value),
         message: 'Некорректный URL',
       },
-      required: [true, 'Поле "avatar" должно быть заполнено'],
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      validate: {
+        validator: (value) => validator.isEmail(value),
+        message: 'Некорректный URL',
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 8,
     },
   },
   { versionKey: false },
@@ -31,3 +46,21 @@ const userSchema = new mongoose.Schema(
 
 const User = mongoose.model('user', userSchema); // создание модели
 module.exports = User; // экспорт модели
+
+// module.exports.login = (req, res) => {
+//   const { email, password } = req.body;
+
+//   return User.findUserByCredentials(email, password)
+//     .then((user) => {
+//       // создадим токен
+//       const token = jwt.sign({ _id: user._id }, 'some-secret-key', {expiresIn: '7d'} );
+
+//       // вернём токен
+//       res.send({ token });
+//     })
+//     .catch((err) => {
+//       res
+//         .status(401)
+//         .send({ message: err.message });
+//     });
+// };
