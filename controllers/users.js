@@ -90,6 +90,15 @@ module.exports.updateUserAvatar = (req, res) => {
     });
 };
 
+// получение информации о пользователе
+module.exports.getUserInfo = (req, res) => {
+  const id = req.user._id;
+
+  User.find({ id })
+    .then((user) => res.status(200).send({ user }))
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+};
+
 // проверка данных пользователя
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
