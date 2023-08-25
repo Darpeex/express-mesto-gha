@@ -3,6 +3,11 @@ const helmet = require('helmet'); // модуль для обеспечения 
 const express = require('express'); // фреймворк для создания веб-приложений на Node.js
 const mongoose = require('mongoose'); // модуль для работы с базой данных MongoDB
 
+require('dotenv').config();
+
+// импортируем контроллеры для создания пользователя и авторизации
+const { createUser, login } = require('./controllers/users');
+
 // импорт маршрутов для пользователей и карточек:
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
@@ -31,6 +36,9 @@ app.use((req, res, next) => { // middleware с информацией о пол�
 });
 
 // подключаем роуты
+app.post('/signup', createUser); // регистрируемся и создаём пользователя
+app.post('/signin', login); // заходим под пользователя
+
 app.use(userRouter);
 app.use(cardRouter);
 
