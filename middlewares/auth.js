@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken'); // импортируем модуль json
 
 const { NODE_ENV, JWT_SECRET } = process.env; // достали константы из .env
 
-// вынесли ответ об ошибке в отдельную функцию
+// функция с ответом об ошибке
 const handleAuthError = (res) => {
   res
     .status(401)

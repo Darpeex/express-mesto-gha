@@ -14,7 +14,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
 const app = express(); // cоздаём объект приложения
-const { // задаём постоянные для удобства использования
+const { // оставлено здесь для ТЕСТов
   PORT = 3000,
   BD_URL = 'mongodb://localhost:27017/mestodb',
 } = process.env; // свойство для доступа к переменным среды ОС
@@ -41,6 +41,10 @@ app.use(cardRouter);
 
 app.use((req, res) => { // предупреждаем переход по отсутсвующему пути
   res.status(404).json({ message: 'Путь не найден' });
+});
+
+app.use((err, req, res, next) => { // здесь обрабатываем все ошибки
+  res.send({ message: err.message });
 });
 
 // app.use(express.static(path.join(__dirname, 'public')));

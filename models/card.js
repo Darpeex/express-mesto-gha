@@ -22,6 +22,7 @@ const cardSchema = new mongoose.Schema(
     owner: {
       type: mongoose.Schema.Types.ObjectId, // тип данных для работы с идентификаторами(ObjectId)
       ref: 'User',
+      required: [true, 'Удалить может только владелец карточки'],
     },
     likes: {
       type: [

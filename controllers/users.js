@@ -94,7 +94,7 @@ module.exports.updateUserAvatar = (req, res) => {
 module.exports.getUserInfo = (req, res) => {
   const id = req.user._id;
 
-  User.find({ id })
+  return User.find({ id })
     .then((user) => res.status(200).send({ user }))
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
