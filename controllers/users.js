@@ -33,17 +33,33 @@ module.exports.getUserById = (req, res) => {
 
 // создаёт пользователя
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar, email, password } = req.body;
-  bcrypt.hash(password, 10) // хешируем пароль
-    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
-    .then((user) => res.status(201).send({ user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Некорректные данные пользователя' });
-      } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
-      }
-    });
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Все поля должны быть заполнены' });
+  }
+  bcrypt.hash(password, 10, (error, hash) => { // хешируем пароль
+    User.findOne({ email })
+      .then((user) => {
+        if (user) {
+          return res
+            .status(403)
+            .send({ message: 'Даный email уже зарегистрирован' });
+        }
+        console.log(password);
+        console.log(hash);
+        return User.create({ email, password: hash })
+          .then(() => {
+            res
+              .status(201)
+              .send({ message: `Пользователь ${email} зарегистрирован` });
+          })
+          .catch((err) => res.status(500).send(err));
+      })
+      .catch((err) => res.status(500).send({ message: `Произошла ошибка: ${err.message}` }));
+  });
 };
 
 // обновляет профиль
