@@ -26,14 +26,23 @@ module.exports.createCard = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   // req.params содержит параметры маршрута, которые передаются в URL
   const { cardId } = req.params; // извлекаем значение cardId из объекта req.params
-  // runValidators проверяет поля перед сохранением в БД, new - возвращает обновленный документ
-  const options = { runValidators: true, new: true };
 
-  return Card.findByIdAndRemove({ _id: cardId }, options)
-    .orFail(new Error('NotValidId'))
-    .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }))
+  return Card.findById({ _id: cardId })
+    .orFail(new Error('CardNotFound'))
+    .then((card) => {
+      const userId = req.user._id;
+      const cardUserId = card.owner.toString();
+
+      console.log(userId);
+      console.log(cardUserId);
+      if (userId !== cardUserId) {
+        return res.status(403).send({ message: 'Вы можете удалить только свою карточку' });
+      }
+      return Card.findByIdAndRemove({ _id: cardId })
+        .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }));
+    })
     .catch((err) => {
-      if (err.message === 'NotValidId') {
+      if (err.message === 'CardNotFound') {
         return res.status(404).send({ message: 'Карточка не найдена' });
       }
       if (err.name === 'CastError') {
