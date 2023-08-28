@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */ // неиспользуемый next в 47 строке, я не знаю, нужен ли
 // const path = require('path');
 const helmet = require('helmet'); // модуль для обеспечения безопасности приложения Express
 const express = require('express'); // фреймворк для создания веб-приложений на Node.js
@@ -44,7 +45,15 @@ app.use((req, res) => { // предупреждаем переход по отс
 });
 
 app.use((err, req, res, next) => { // здесь обрабатываем все ошибки
-  res.send({ message: err.message });
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({ // проверяем статус и выставляем сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
 });
 
 // app.use(express.static(path.join(__dirname, 'public')));

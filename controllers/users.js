@@ -45,7 +45,7 @@ module.exports.createUser = (req, res) => {
       .then((user) => {
         if (user) {
           return res
-            .status(403)
+            .status(409)
             .send({ message: 'Даный email уже зарегистрирован' });
         }
         console.log(password);
@@ -131,9 +131,8 @@ module.exports.login = (req, res) => {
         .cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }) // сохраняем токен в куки на неделю
         .send({ message: 'Успешная аутентификация' }) // отправляем ответ об успешной аутентификации
         .end(); // если у ответа нет тела, можно использовать метод end
-      console.log(token);
     })
-    .catch((err) => { // ошибка аутентификации
+    .catch((err) => { // ошибка аутентификации (присланный токен некорректен)
       res.status(401).send({ message: err.message });
     });
 };
