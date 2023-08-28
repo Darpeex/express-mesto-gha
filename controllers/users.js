@@ -41,7 +41,7 @@ module.exports.createUser = (req, res) => {
       .send({ message: 'Все поля должны быть заполнены' });
   }
   bcrypt.hash(password, 10, (error, hash) => { // хешируем пароль
-    User.findOne({ email })
+    User.findOne({ email }).select('+password')
       .then((user) => {
         if (user) {
           return res
