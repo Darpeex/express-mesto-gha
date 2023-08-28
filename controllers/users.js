@@ -49,16 +49,10 @@ module.exports.createUser = (req, res) => {
             .send({ message: 'Даный email уже зарегистрирован' });
         }
         return User.create({ email, password: hash })
-          .then((data) => { // колхоз получился, чтобы пароль не палился
+          .then((data) => {
             res
               .status(201)
-              .send({
-                name: data.name,
-                about: data.about,
-                avatar: data.avatar,
-                email: data.email,
-                password: data.password,
-              });
+              .send({ data });
           })
           .catch((err) => res.status(500).send(err));
       })

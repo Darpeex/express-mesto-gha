@@ -1,12 +1,12 @@
 /* eslint-disable consistent-return */ // чтобы не ругался на стрелочную функцию
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken (jwt)
 
-const { NODE_ENV, JWT_SECRET } = process.env; // достали константы из .env
+const { NODE_ENV, JWT_SECRET } = process.env; // достали константы из .env - github не видит
 
 // функция с ответом об ошибке
 const handleAuthError = (res) => {
   res
-    .status(401)
+    .status(404)
     .send({ message: 'Необходима авторизация' });
 };
 

@@ -3,7 +3,7 @@
 const helmet = require('helmet'); // модуль для обеспечения безопасности приложения Express
 const express = require('express'); // фреймворк для создания веб-приложений на Node.js
 const mongoose = require('mongoose'); // модуль для работы с базой данных MongoDB
-const { celebrate, Joi, Segments } = require('celebrate'); // библиотека для валидации данных
+const { celebrate, Joi } = require('celebrate'); // библиотека для валидации данных
 
 require('dotenv').config();
 const { errors } = require('celebrate'); // мидлвэр для ошибок валидации полей
@@ -48,7 +48,7 @@ app.post('/signin', celebrate({
       .email(),
     password: Joi.string().min(2).max(30).required(),
   }),
-  [Segments.QUERY]: {
+  query: {
     token: Joi.string().token().required(),
   },
 }), login); // заходим под пользователя
