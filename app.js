@@ -3,8 +3,10 @@
 const helmet = require('helmet'); // модуль для обеспечения безопасности приложения Express
 const express = require('express'); // фреймворк для создания веб-приложений на Node.js
 const mongoose = require('mongoose'); // модуль для работы с базой данных MongoDB
+const { celebrate, Joi } = require('celebrate'); // библиотека для валидации данных
 
 require('dotenv').config();
+const { errors } = require('celebrate'); // мидлвэр для ошибок валидации полей
 
 // импортируем контроллеры для создания пользователя и авторизации
 const { createUser, login } = require('./controllers/users');
@@ -30,8 +32,20 @@ mongoose.connect(BD_URL, { // подключение к mongodb
 }).then(() => console.log('Подключились к БД'));
 
 // роуты, не требующие авторизации
-app.post('/signup', createUser); // регистрируемся и создаём пользователя
-app.post('/signin', login); // заходим под пользователя
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().min(2).max(30).required()
+      .email(),
+    password: Joi.string().min(2).max(30).required(),
+  }),
+}), createUser); // регистрируемся и создаём пользователя
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().min(2).max(30).required()
+      .email(),
+    password: Joi.string().min(2).max(30).required(),
+  }),
+}), login); // заходим под пользователя
 
 // авторизация
 app.use(auth);
@@ -44,6 +58,10 @@ app.use((req, res) => { // предупреждаем переход по отс
   res.status(404).json({ message: 'Путь не найден' });
 });
 
+// обработчики ошибок
+app.use(errors()); // обработчик ошибок celebrate
+
+// наш централизованный обработчик
 app.use((err, req, res, next) => { // здесь обрабатываем все ошибки
   const { statusCode = 500, message } = err;
 

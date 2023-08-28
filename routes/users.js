@@ -10,7 +10,7 @@ router.get('/users', celebrate({ // валидируем заголовки
 }), getUsers); // возвращает всех пользователей
 
 router.get('/users/:userId', celebrate({
-  headers: Joi.object().keys({ authorization: Joi.string().required() }).unknown(true),
+  params: Joi.object().keys({ authorization: Joi.string().required() }).unknown(true),
 }), getUserById); // возвращает пользователя по _id
 
 router.get('/users/me', celebrate({
@@ -18,7 +18,7 @@ router.get('/users/me', celebrate({
 }), getUserInfo); // возвращает информацию о текущем пользователе
 
 router.patch('/users/me', celebrate({
-  query: Joi.object({
+  body: Joi.object().keys({
     name: Joi.string().default('Жак-Ив Кусто').min(2).max(30)
       .required(),
     about: Joi.string().default('Исследователь').min(2).max(30)
@@ -27,7 +27,7 @@ router.patch('/users/me', celebrate({
 }), updateUserInfo); // обновляет профиль
 
 router.patch('/users/me/avatar', celebrate({
-  query: Joi.object({
+  body: Joi.object({
     avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png').uri()
       .required(),
   }),
