@@ -33,8 +33,6 @@ module.exports.deleteCard = (req, res) => {
       const userId = req.user._id;
       const cardUserId = card.owner.toString();
 
-      console.log(userId);
-      console.log(cardUserId);
       if (userId !== cardUserId) {
         return res.status(403).send({ message: 'Вы можете удалить только свою карточку' });
       }

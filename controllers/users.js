@@ -48,8 +48,6 @@ module.exports.createUser = (req, res) => {
             .status(409)
             .send({ message: 'Даный email уже зарегистрирован' });
         }
-        console.log(password);
-        console.log(hash);
         return User.create({ email, password: hash })
           .then(() => {
             res

@@ -1,4 +1,4 @@
-const router = require('express').Router(); // создание нового экземпляра маршрутизатора заместо app
+const router = require('express').Router(); // создание нового экземпляра маршрутизатора вместо app
 const {
   getCards, createCard, deleteCard, likeCard, dislikeCard,
 } = require('../controllers/cards');

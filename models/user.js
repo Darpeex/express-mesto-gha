@@ -1,7 +1,7 @@
 /* eslint-disable func-names */ // чтобы не ругался на функцию строка '50'
 const mongoose = require('mongoose'); // нужна для создании схем
-const validator = require('validator'); // библиотека для валидации данных
 const bcrypt = require('bcrypt'); // импортируем bcrypt для хеширования
+const validator = require('validator'); // библиотека для валидации данных
 
 // Создаём схему и задаём её поля
 const userSchema = new mongoose.Schema(
