@@ -19,10 +19,8 @@ router.get('/users/me', celebrate({
 
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().default('Жак-Ив Кусто').min(2).max(30)
-      .required(),
-    about: Joi.string().default('Исследователь').min(2).max(30)
-      .required(),
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
   }),
 }), updateUserInfo); // обновляет профиль
 

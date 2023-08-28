@@ -3,7 +3,7 @@
 const helmet = require('helmet'); // модуль для обеспечения безопасности приложения Express
 const express = require('express'); // фреймворк для создания веб-приложений на Node.js
 const mongoose = require('mongoose'); // модуль для работы с базой данных MongoDB
-const { celebrate, Joi } = require('celebrate'); // библиотека для валидации данных
+const { celebrate, Joi, Segments } = require('celebrate'); // библиотека для валидации данных
 
 require('dotenv').config();
 const { errors } = require('celebrate'); // мидлвэр для ошибок валидации полей
@@ -37,6 +37,9 @@ app.post('/signup', celebrate({
     email: Joi.string().min(2).max(30).required()
       .email(),
     password: Joi.string().min(2).max(30).required(),
+    name: Joi.string().default('Жак-Ив Кусто').min(2).max(30),
+    about: Joi.string().default('Исследователь').min(2).max(30),
+    avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png').uri(),
   }),
 }), createUser); // регистрируемся и создаём пользователя
 app.post('/signin', celebrate({
@@ -45,6 +48,9 @@ app.post('/signin', celebrate({
       .email(),
     password: Joi.string().min(2).max(30).required(),
   }),
+  [Segments.QUERY]: {
+    token: Joi.string().token().required(),
+  },
 }), login); // заходим под пользователя
 
 // авторизация
