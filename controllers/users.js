@@ -50,9 +50,10 @@ module.exports.createUser = (req, res) => {
         }
         return User.create({ email, password: hash })
           .then((data) => {
+            const { name, about, avatar } = data;
             res
               .status(201)
-              .send({ data });
+              .send({ name, about, avatar, email });
           })
           .catch((err) => res.status(500).send(err));
       })
