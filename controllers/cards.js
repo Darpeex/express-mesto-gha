@@ -12,7 +12,7 @@ module.exports.getCards = (req, res) => {
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.status(201).send({ data: card }))
+    .then((card) => res.status(201).send(card))
     .catch((err) => { // если введённые данные некорректны, возвращается ошибка с кодом '400'
       if (err.name === 'ValidationError') { // если тип ошибки совпадает с 'ValidationError'
         res.status(400).send({ message: 'Переданы некорректные данные пользователя' });
