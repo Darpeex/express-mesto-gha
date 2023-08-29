@@ -32,7 +32,7 @@ mongoose.connect(BD_URL, { // подключение к mongodb
 }).then(() => console.log('Подключились к БД'));
 
 // роуты, не требующие авторизации
-app.post('/signup', celebrate({
+app.post('/signup', celebrate({ // регистрируемся и создаём пользователя
   body: Joi.object().keys({
     email: Joi.string().min(2).max(30).required()
       .email(),
@@ -42,14 +42,14 @@ app.post('/signup', celebrate({
     avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png')
       .pattern(/^(http|https):\/\/(www\.)?[a-zA-Z0-9\--._~:/?#[\]@!$&'()*+,;=]+#?$/),
   }),
-}), createUser); // регистрируемся и создаём пользователя
+}), createUser); // заходим под пользователя
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().min(2).max(30).required()
       .email(),
     password: Joi.string().min(2).max(30).required(),
   }),
-}), login); // заходим под пользователя
+}), login);
 
 // авторизация
 app.use(auth);
@@ -58,12 +58,12 @@ app.use(auth);
 app.use(userRouter);
 app.use(cardRouter);
 
+// обработчик ошибок celebrate
+app.use(errors());
+
 app.use((req, res) => { // предупреждаем переход по отсутсвующему пути
   res.status(404).json({ message: 'Путь не найден' });
 });
-
-// обработчики ошибок
-app.use(errors()); // обработчик ошибок celebrate
 
 // наш централизованный обработчик
 app.use((err, req, res, next) => { // здесь обрабатываем все ошибки

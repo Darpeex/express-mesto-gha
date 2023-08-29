@@ -5,31 +5,33 @@ const {
   getUsers, getUserById, getUserInfo, updateUserInfo, updateUserAvatar,
 } = require('../controllers/users');
 
-router.get('/users', celebrate({ // валидируем заголовки
-  headers: Joi.object().keys({ authorization: Joi.string().required() }).unknown(true),
-}), getUsers); // возвращает всех пользователей
-
-router.get('/users/:userId', celebrate({
-  params: Joi.object().keys({ authorization: Joi.string().required() }).unknown(true),
-}), getUserById); // возвращает пользователя по _id
-
-router.get('/users/me', celebrate({
-  headers: Joi.object().keys({ authorization: Joi.string().required() }).unknown(true),
-}), getUserInfo); // возвращает информацию о текущем пользователе
-
-router.patch('/users/me', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    about: Joi.string().min(2).max(30).required(),
+router.get('/users', getUsers); // возвращает всех пользователей
+router.get('/users/me', getUserInfo); // возвращает информацию о текущем пользователе
+router.get('/users/:userId', celebrate({ // возвращает пользователя по _id
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().required(),
   }),
-}), updateUserInfo); // обновляет профиль
+}), getUserById);
 
-router.patch('/users/me/avatar', celebrate({
-  body: Joi.object({
-    avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png').uri()
-      .required(),
+router.patch( // обновляет профиль
+  '/users/me',
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30).required(),
+      about: Joi.string().min(2).max(30).required(),
+    }).options({ abortEarly: false }),
   }),
+  updateUserInfo,
+);
 
-}), updateUserAvatar); // обновляет аватар
+router.patch( // обновляет аватар
+  '/users/me/avatar',
+  celebrate({
+    body: Joi.object({
+      avatar: Joi.string().uri().required(),
+    }).options({ abortEarly: false }),
+  }),
+  updateUserAvatar,
+);
 
 module.exports = router;

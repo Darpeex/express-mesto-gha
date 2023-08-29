@@ -16,7 +16,7 @@ module.exports.getUserById = (req, res) => {
   // req.params содержит параметры маршрута, которые передаются в URL
   const { userId } = req.params;
 
-  return User.findById({ _id: userId })
+  return User.findById(userId)
     .then((user) => {
       if (user === null) {
         return res.status(404).send({ message: 'Пользователь не найден' });
@@ -109,9 +109,19 @@ module.exports.updateUserAvatar = (req, res) => {
 module.exports.getUserInfo = (req, res) => {
   const id = req.user._id;
 
-  return User.find({ id })
-    .then((user) => res.status(200).send({ user }))
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+  return User.findById(id)
+    .then((user) => {
+      if (user === null) {
+        return res.status(404).send({ message: 'Пользователь не найден' });
+      }
+      return res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') { // если тип ошибки совпадает с 'CastError'
+        return res.status(400).send({ message: 'Некорректный Id пользователя' });
+      }
+      return res.status(500).send({ message: 'Ошибка сервера' });
+    });
 };
 
 // проверка данных пользователя
