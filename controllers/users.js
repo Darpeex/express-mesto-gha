@@ -34,6 +34,7 @@ module.exports.getUserById = (req, res) => {
 // создаёт пользователя
 module.exports.createUser = (req, res) => {
   const { email, password } = req.body;
+  const { name, about, avatar } = req.body;
 
   if (!email || !password) {
     return res
@@ -48,9 +49,8 @@ module.exports.createUser = (req, res) => {
             .status(409)
             .send({ message: 'Даный email уже зарегистрирован' });
         }
-        return User.create({ email, password: hash })
-          .then((data) => {
-            const { name, about, avatar } = data;
+        return User.create({ name, about, avatar, email, password: hash })
+          .then(() => {
             res
               .status(201)
               .send({ name, about, avatar, email });

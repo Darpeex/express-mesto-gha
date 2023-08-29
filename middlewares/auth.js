@@ -6,7 +6,7 @@ const { NODE_ENV, JWT_SECRET } = process.env; // достали констант
 // функция с ответом об ошибке
 const handleAuthError = (res) => {
   res
-    .status(404)
+    .status(401)
     .send({ message: 'Необходима авторизация' });
 };
 
