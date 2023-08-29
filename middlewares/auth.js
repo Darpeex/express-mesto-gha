@@ -18,14 +18,14 @@ const extractJwtToken = (authorization) => authorization.replace('jwt=', '');
 
 module.exports = (req, res, next) => {
   const authorization = req.headers.cookie; // из ответа получаем токен
-  console.log(authorization);
+  console.log(`from cookie: ${authorization}`);
   // проверяем есть ли он или начинается ли с Bearer || jwt (тип токена аутентификации)
   if (!authorization || !authorization.startsWith('jwt=')) {
     return handleAuthError(res);
   }
   // если с полученым токеном всё в порядке
   const token = extractJwtToken(authorization); // в переменную записывается только jwt
-  console.log(` 2 ${token}`);
+  console.log(`token: ${token}`);
   let payload; // у let блочная область видимости, чтобы payload был виден снаружи объявляем до try
 
   try {
