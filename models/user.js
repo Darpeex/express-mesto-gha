@@ -48,10 +48,10 @@ const userSchema = new mongoose.Schema(
 // добавим findUserByCredentials схеме пользователя; функция не стрелочная, т.к. нам нужен this
 userSchema.statics.findUserByCredentials = function (email, password) {
   // попытаемся найти пользователя по почте
-  return this.findOne({ email }) // this — это модель User
+  return this.findOne({ email }).select('+password') // this — это модель User
     .then((user) => {
       if (!user) { // если не нашёлся — отклоняем промис
-        return Promise.reject(new Error('Неправильные почта или пароль'));
+        return Promise.reject(new Error('Пользователь не найден'));
       } // нашёлся — сравниваем хеши
       return bcrypt.compare(password, user.password)
         .then((matched) => {

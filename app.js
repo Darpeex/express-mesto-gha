@@ -49,9 +49,6 @@ app.post('/signin', celebrate({
       .email(),
     password: Joi.string().min(2).max(30).required(),
   }),
-  query: {
-    token: Joi.string().token().required(),
-  },
 }), login); // заходим под пользователя
 
 // авторизация

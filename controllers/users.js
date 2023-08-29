@@ -126,6 +126,7 @@ module.exports.login = (req, res) => {
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', // а значение 'dev-secret', если находимся в другой среде (например, development)
         { expiresIn: '7d' }, // JWT создаётся сроком на неделю
       );
+
       res
         .cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }) // сохраняем токен в куки на неделю
         .send({ message: 'Успешная аутентификация' }) // отправляем ответ об успешной аутентификации
