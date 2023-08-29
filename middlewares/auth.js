@@ -11,16 +11,21 @@ const handleAuthError = (res) => {
 };
 
 // функции достаёт jwt из заголовка убирая 'Bearer '
-const extractBearerToken = (authorization) => authorization.replace('Bearer ', '');
+// const extractBearerToken = (authorization) => authorization.replace('Bearer ', '');
+
+// функции достаёт jwt из заголовка убирая 'Bearer '
+const extractJwtToken = (authorization) => authorization.replace('jwt=', '');
 
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers; // из ответа получаем токен
-  // проверяем есть ли он или начинается ли с Bearer (тип токена аутентификации)
-  if (!authorization || !authorization.startsWith('Bearer')) {
+  const authorization = req.headers.cookie; // из ответа получаем токен
+  console.log(authorization);
+  // проверяем есть ли он или начинается ли с Bearer || jwt (тип токена аутентификации)
+  if (!authorization || !authorization.startsWith('jwt=')) {
     return handleAuthError(res);
   }
   // если с полученым токеном всё в порядке
-  const token = extractBearerToken(authorization); // в переменную записывается только jwt
+  const token = extractJwtToken(authorization); // в переменную записывается только jwt
+  console.log(` 2 ${token}`);
   let payload; // у let блочная область видимости, чтобы payload был виден снаружи объявляем до try
 
   try {
