@@ -1,9 +1,7 @@
-/* eslint-disable no-unused-vars */ // неиспользуемый next в 47 строке, я не знаю, нужен ли
 // const path = require('path');
 const helmet = require('helmet'); // модуль для обеспечения безопасности приложения Express
 const express = require('express'); // фреймворк для создания веб-приложений на Node.js
 const mongoose = require('mongoose'); // модуль для работы с базой данных MongoDB
-const { celebrate, Joi } = require('celebrate'); // библиотека для валидации данных
 const { errors } = require('celebrate'); // мидлвэр для ошибок валидации полей
 require('dotenv').config();
 
@@ -15,11 +13,18 @@ const auth = require('./middlewares/auth');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
+// импорт валидаторов для роутов
+const { signupValidator } = require('./validators/signup-validator');
+const { signinValidator } = require('./validators/signin-validator');
+
+// импорт экземпляра класса с ошибкой
+const NotFoundError = require('./errors/not-found-err'); // 404
+
+// импорт мидлвара для централизованной обработки ошибок
+const errorHandler = require('./middlewares/error-handler');
+
 const app = express(); // cоздаём объект приложения
-const { // оставлено здесь для ТЕСТов
-  PORT = 3000,
-  BD_URL = 'mongodb://localhost:27017/mestodb',
-} = process.env; // свойство для доступа к переменным среды ОС
+const { PORT, BD_URL } = process.env; // свойство для доступа к переменным среды ОС из .env
 
 app.use(helmet()); // использование модуля безопасности
 
@@ -31,23 +36,8 @@ mongoose.connect(BD_URL, { // подключение к mongodb
 }).then(() => console.log('Подключились к БД'));
 
 // роуты, не требующие авторизации
-app.post('/signup', celebrate({ // регистрируемся и создаём пользователя
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().default('Жак-Ив Кусто').min(2).max(30),
-    about: Joi.string().default('Исследователь').min(2).max(30),
-    avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png')
-      .pattern(/^(http|https):\/\/(www\.)?[a-zA-Z0-9\--._~:/?#[\]@!$&'()*+,;=]+#?$/),
-  }),
-}), createUser); // заходим под пользователя
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().min(2).max(30).required()
-      .email(),
-    password: Joi.string().min(2).max(30).required(),
-  }),
-}), login);
+app.post('/signup', signupValidator, createUser); // регистрируемся
+app.post('/signin', signinValidator, login); // заходим под пользователя
 
 // авторизация
 app.use(auth);
@@ -59,22 +49,12 @@ app.use(cardRouter);
 // обработчик ошибок celebrate
 app.use(errors());
 
-app.use((req, res) => { // предупреждаем переход по отсутсвующему пути
-  res.status(404).json({ message: 'Путь не найден' });
+app.use((req, res, next) => { // предупреждаем переход по отсутсвующему пути
+  next(new NotFoundError('Путь не найден'));
 });
 
 // наш централизованный обработчик
-app.use((err, req, res, next) => { // здесь обрабатываем все ошибки
-  const { statusCode = 500, message } = err;
-
-  res
-    .status(statusCode)
-    .send({ // проверяем статус и выставляем сообщение в зависимости от него
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-});
+app.use(errorHandler);
 
 // app.use(express.static(path.join(__dirname, 'public')));
 app.listen(PORT, () => {

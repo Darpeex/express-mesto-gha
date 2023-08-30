@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken (jwt)
 
-const { NODE_ENV, JWT_SECRET } = process.env; // достали константы из .env - github не видит
+const { NODE_ENV, JWT_SECRET } = process.env; // достали константы из .env
 
 // функции достаёт jwt из заголовка убирая 'jwt= '
 const extractJwtToken = (authorization) => authorization.replace('jwt=', '');
