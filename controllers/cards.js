@@ -49,7 +49,8 @@ module.exports.deleteCard = (req, res, next) => {
         throw new RequestError('Некорректный Id карточки');
       }
       return next(err); // передаём ошибку в централизованный обработчик
-    });
+    })
+    .catch(next); // без 2го catch не сработало, но в других местах работает?
 };
 
 // поставить лайк карточке
