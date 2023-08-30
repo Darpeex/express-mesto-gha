@@ -24,7 +24,11 @@ const NotFoundError = require('./errors/not-found-err'); // 404
 const errorHandler = require('./middlewares/error-handler');
 
 const app = express(); // cоздаём объект приложения
-const { PORT, BD_URL } = process.env; // свойство для доступа к переменным среды ОС из .env
+
+const { // оставлено здесь для ТЕСТов
+  PORT = 3000,
+  BD_URL = 'mongodb://localhost:27017/mestodb',
+} = process.env; // свойство для доступа к переменным среды ОС
 
 app.use(helmet()); // использование модуля безопасности
 
