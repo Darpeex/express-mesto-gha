@@ -1,11 +1,34 @@
+/* eslint-disable max-classes-per-file */ // количество классов, потом перенести в папку errors и импортировать
 /* eslint-disable consistent-return */ // убирает подчёркивание со стрелочной функции 'строка 33'
 const Card = require('../models/card'); // импортируем модель
 
+// классы с ответами об ошибках
+class RequestError extends Error { // Ошибка запроса
+  constructor(message) {
+    super(message);
+    this.statusCode = 400;
+  }
+}
+
+class OwnerCardError extends Error { // Ошибка запроса
+  constructor(message) {
+    super(message);
+    this.statusCode = 403;
+  }
+}
+
+class NotFoundError extends Error { // Ресурс не найден
+  constructor(message) {
+    super(message);
+    this.statusCode = 404;
+  }
+}
+
 // возвращает все карточки
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.status(200).send({ data: cards })) // успешно, возвращаем карточки
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' })); // или err.message
+    .catch(next);
 };
 
 // создаёт карточку
@@ -15,7 +38,7 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => res.status(201).send(card))
     .catch((err) => { // если введённые данные некорректны, передаём сообщение об ошибке и код '400'
       if (err.name === 'ValidationError') {
-        return next({ statusCode: 400, message: 'Переданы некорректные данные пользователя' });
+        throw new RequestError('Переданы некорректные данные карточки');
       }
       return next(err); // иначе, передаём ошибку в централизованный обработчик
     });
@@ -32,17 +55,17 @@ module.exports.deleteCard = (req, res, next) => {
       const cardUserId = card.owner.toString();
 
       if (userId !== cardUserId) {
-        return next({ statusCode: 403, message: 'Вы можете удалить только свою карточку' });
+        throw new OwnerCardError('Вы можете удалить только свою карточку');
       }
       return Card.findByIdAndRemove({ _id: cardId })
         .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }));
     })
     .catch((err) => {
       if (err.message === 'CardNotFound') {
-        return next({ statusCode: 404, message: 'Карточка не найдена' });
+        throw new NotFoundError('Карточка не найдена');
       }
       if (err.name === 'CastError') {
-        return next({ statusCode: 400, message: 'Некорректный Id карточки' });
+        throw new RequestError('Некорректный Id карточки');
       }
       return next(err); // передаём ошибку в централизованный обработчик
     });
@@ -57,13 +80,13 @@ module.exports.likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Карточка не найдена' });
+        throw new NotFoundError('Карточка не найдена');
       }
       res.status(200).send({ message: 'Лайк поставлен' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next({ statusCode: 400, message: 'Некорректный Id карточки' });
+        throw new RequestError('Некорректный Id карточки');
       }
       return next(err); // передаём ошибку в централизованный обработчик
     });
@@ -78,13 +101,13 @@ module.exports.dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Карточка не найдена' });
+        throw new NotFoundError('Карточка не найдена');
       }
       res.status(200).send({ message: 'Лайк удален' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next({ statusCode: 400, message: 'Некорректный Id карточки' });
+        throw new RequestError('Некорректный Id карточки');
       }
       return next(err); // передаём ошибку в централизованный обработчик
     });
