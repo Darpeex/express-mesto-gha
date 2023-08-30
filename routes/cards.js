@@ -15,17 +15,17 @@ router.post('/cards', celebrate({ // создаёт карточку
 }), createCard);
 router.delete('/cards/:cardId', celebrate({ // удаляет карточку по идентификатору
   params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(24).required(),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), deleteCard);
 router.put('/cards/:cardId/likes', celebrate({ // поставить лайк карточке
   params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(24).required(),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), likeCard);
 router.delete('/cards/:cardId/likes', celebrate({ // убрать лайк с карточки
   params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(24).required(),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), dislikeCard);
 
