@@ -1,18 +1,10 @@
-/* eslint-disable consistent-return */ // чтобы не ругался на стрелочную функцию
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken (jwt)
 
 const { NODE_ENV, JWT_SECRET } = process.env; // достали константы из .env - github не видит
 
-// класс с ответом об ошибке
-class AuthorizationError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = 401;
-  }
-}
-
 // функции достаёт jwt из заголовка убирая 'jwt= '
 const extractJwtToken = (authorization) => authorization.replace('jwt=', '');
+const AuthorizationError = require('../errors/auth-err');
 
 module.exports = (req, res, next) => {
   const authorization = req.headers.cookie; // из ответа получаем токен

@@ -1,28 +1,9 @@
-/* eslint-disable max-classes-per-file */ // количество классов, потом перенести в папку errors и импортировать
-/* eslint-disable consistent-return */ // убирает подчёркивание со стрелочной функции 'строка 33'
 const Card = require('../models/card'); // импортируем модель
 
 // классы с ответами об ошибках
-class RequestError extends Error { // Ошибка запроса
-  constructor(message) {
-    super(message);
-    this.statusCode = 400;
-  }
-}
-
-class OwnerCardError extends Error { // Ошибка запроса
-  constructor(message) {
-    super(message);
-    this.statusCode = 403;
-  }
-}
-
-class NotFoundError extends Error { // Ресурс не найден
-  constructor(message) {
-    super(message);
-    this.statusCode = 404;
-  }
-}
+const RequestError = require('../errors/req-err'); // 400
+const OwnerCardError = require('../errors/owner-err'); // 403
+const NotFoundError = require('../errors/not-found-err'); // 404
 
 // возвращает все карточки
 module.exports.getCards = (req, res, next) => {

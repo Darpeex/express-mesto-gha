@@ -1,53 +1,54 @@
-/* eslint-disable consistent-return */ // откл. ругание на стрелочную функцию строка '103'
 /* eslint-disable object-curly-newline */ // откл. предупреждение о переносе с множеством аргументов
 const bcrypt = require('bcrypt'); // импортируем bcrypt
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken (jwt)
 const User = require('../models/user'); // импортируем модель пользователя
 
+// классы с ответами об ошибках
+const RequestError = require('../errors/req-err'); // 400
+const AuthorizationError = require('../errors/auth-err'); // 401
+const NotFoundError = require('../errors/not-found-err'); // 404
+const EmailExistenceError = require('../errors/owner-err'); // 409
+
 // возвращает всех пользователей
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch(next);
 };
 
 // возвращает пользователя по _id
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   // req.params содержит параметры маршрута, которые передаются в URL
   const { userId } = req.params;
 
   return User.findById(userId)
     .then((user) => {
       if (user === null) {
-        return res.status(404).send({ message: 'Пользователь не найден' });
+        throw new NotFoundError('Пользователь не найден');
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') { // если тип ошибки совпадает с 'CastError'
-        return res.status(400).send({ message: 'Некорректный Id пользователя' });
+        throw new RequestError('Некорректный Id пользователя');
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return next(err); // иначе, передаём ошибку в централизованный обработчик
     });
 };
 
 // создаёт пользователя
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { email, password } = req.body;
   const { name, about, avatar } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(400)
-      .send({ message: 'Все поля должны быть заполнены' });
+    throw new RequestError('Все поля должны быть заполнены');
   }
   bcrypt.hash(password, 10, (error, hash) => { // хешируем пароль
     User.findOne({ email }).select('+password')
       .then((user) => {
         if (user) {
-          return res
-            .status(409)
-            .send({ message: 'Даный email уже зарегистрирован' });
+          throw new EmailExistenceError('Даный email уже зарегистрирован');
         }
         return User.create({ name, about, avatar, email, password: hash })
           .then(() => {
@@ -55,14 +56,14 @@ module.exports.createUser = (req, res) => {
               .status(201)
               .send({ name, about, avatar, email });
           })
-          .catch((err) => res.status(500).send(err));
+          .catch((err) => next(err));
       })
-      .catch((err) => res.status(500).send({ message: `Произошла ошибка: ${err.message}` }));
+      .catch((err) => next(err));
   });
 };
 
 // обновляет профиль
-module.exports.updateUserInfo = (req, res) => {
+module.exports.updateUserInfo = (req, res, next) => {
   const id = req.user._id; // извлекаем id пользователя из объекта req.user
   // runValidators проверяет поля перед сохранением в БД, new - возвращает обновленный документ
   const options = { runValidators: true, new: true }; // включена валидация и сразу обновление
@@ -72,20 +73,20 @@ module.exports.updateUserInfo = (req, res) => {
   return User.findByIdAndUpdate(id, updatedInfo, options) // передаём id и новые данные
     .then((user) => { // если обновление профиля выполнено успешно, выполнится след. блок
       if (user === null) { // если возвращенное значение user пустое, ошибка
-        return res.status(404).send({ message: 'Пользователь не найден' });
+        throw new NotFoundError('Пользователь не найден');
       } // иначе отправим клиенту новые данные
       return res.status(200).send(user);
     }).catch((err) => { // если введённые данные некорректны, возвращается ошибка с кодом '400'
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные пользователя' });
+        throw new RequestError('Переданы некорректные данные пользователя');
       } else { // иначе, по-умолчанию, ошибка с кодом '500'
-        res.status(500).send({ message: 'Ошибка сервера' });
+        return next(err);
       }
     });
 };
 
 // обновляет аватар
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   const id = req.user._id;
   const options = { runValidators: true, new: true };
   const updatedAvatar = { avatar: req.body.avatar };
@@ -93,39 +94,39 @@ module.exports.updateUserAvatar = (req, res) => {
   return User.findByIdAndUpdate(id, updatedAvatar, options)
     .then((user) => { // если обновление профиля выполнено успешно, выполнится след. блок
       if (user === null) { // если возвращенное значение user пустое, ошибка
-        return res.status(404).send({ message: 'Пользователь не найден' });
+        throw new NotFoundError('Пользователь не найден');
       } // иначе отправим клиенту новые данные
       return res.status(200).send(user);
     }).catch((err) => { // если введённые данные некорректны, возвращается ошибка с кодом '400'
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        throw new RequestError('Переданы некорректные данные');
       } else { // иначе, по-умолчанию, ошибка с кодом '500'
-        res.status(500).send({ message: 'Ошибка сервера' });
+        return next(err);
       }
     });
 };
 
 // получение информации о пользователе
-module.exports.getUserInfo = (req, res) => {
+module.exports.getUserInfo = (req, res, next) => {
   const id = req.user._id;
 
   return User.findById(id)
     .then((user) => {
       if (user === null) {
-        return res.status(404).send({ message: 'Пользователь не найден' });
+        throw new NotFoundError('Пользователь не найден');
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') { // если тип ошибки совпадает с 'CastError'
-        return res.status(400).send({ message: 'Некорректный Id пользователя' });
+        throw new RequestError('Некорректный Id пользователя');
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return next(err);
     });
 };
 
 // проверка данных пользователя
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -143,6 +144,7 @@ module.exports.login = (req, res) => {
         .end(); // если у ответа нет тела, можно использовать метод end
     })
     .catch(() => { // ошибка аутентификации (присланный токен некорректен)
-      res.status(401).send({ message: 'Ошибка аутентификации' });
-    });
+      throw new AuthorizationError('Ошибка аутентификации');
+    })
+    .catch(next);
 };
