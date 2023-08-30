@@ -9,24 +9,22 @@ module.exports.getCards = (req, res) => {
 };
 
 // создаёт карточку
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(201).send(card))
-    .catch((err) => { // если введённые данные некорректны, возвращается ошибка с кодом '400'
-      if (err.name === 'ValidationError') { // если тип ошибки совпадает с 'ValidationError'
-        res.status(400).send({ message: 'Переданы некорректные данные пользователя' });
-      } else { // иначе, по-умолчанию, ошибка с кодом '500'
-        res.status(500).send({ message: err.message });
+    .catch((err) => { // если введённые данные некорректны, передаём сообщение об ошибке и код '400'
+      if (err.name === 'ValidationError') {
+        return next({ statusCode: 400, message: 'Переданы некорректные данные пользователя' });
       }
+      return next(err); // иначе, передаём ошибку в централизованный обработчик
     });
 };
 
 // удаляет карточку по идентификатору
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   // req.params содержит параметры маршрута, которые передаются в URL
   const { cardId } = req.params; // извлекаем значение cardId из объекта req.params
-
   return Card.findById({ _id: cardId })
     .orFail(new Error('CardNotFound'))
     .then((card) => {
@@ -34,24 +32,24 @@ module.exports.deleteCard = (req, res) => {
       const cardUserId = card.owner.toString();
 
       if (userId !== cardUserId) {
-        return res.status(403).send({ message: 'Вы можете удалить только свою карточку' });
+        return next({ statusCode: 403, message: 'Вы можете удалить только свою карточку' });
       }
       return Card.findByIdAndRemove({ _id: cardId })
         .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }));
     })
     .catch((err) => {
       if (err.message === 'CardNotFound') {
-        return res.status(404).send({ message: 'Карточка не найдена' });
+        return next({ statusCode: 404, message: 'Карточка не найдена' });
       }
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Некорректный Id карточки' });
+        return next({ statusCode: 400, message: 'Некорректный Id карточки' });
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return next(err); // передаём ошибку в централизованный обработчик
     });
 };
 
 // поставить лайк карточке
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -65,14 +63,14 @@ module.exports.likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Некорректный Id карточки' });
+        return next({ statusCode: 400, message: 'Некорректный Id карточки' });
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return next(err); // передаём ошибку в централизованный обработчик
     });
 };
 
 // убрать лайк с карточки
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
@@ -86,8 +84,8 @@ module.exports.dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Некорректный Id карточки' });
+        return next({ statusCode: 400, message: 'Некорректный Id карточки' });
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return next(err); // передаём ошибку в централизованный обработчик
     });
 };

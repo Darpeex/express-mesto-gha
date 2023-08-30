@@ -4,9 +4,8 @@ const helmet = require('helmet'); // модуль для обеспечения 
 const express = require('express'); // фреймворк для создания веб-приложений на Node.js
 const mongoose = require('mongoose'); // модуль для работы с базой данных MongoDB
 const { celebrate, Joi } = require('celebrate'); // библиотека для валидации данных
-
-require('dotenv').config();
 const { errors } = require('celebrate'); // мидлвэр для ошибок валидации полей
+require('dotenv').config();
 
 // импортируем контроллеры для создания пользователя и авторизации
 const { createUser, login } = require('./controllers/users');
