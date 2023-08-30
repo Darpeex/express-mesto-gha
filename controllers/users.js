@@ -7,7 +7,7 @@ const User = require('../models/user'); // импортируем модель �
 const RequestError = require('../errors/req-err'); // 400
 const AuthorizationError = require('../errors/auth-err'); // 401
 const NotFoundError = require('../errors/not-found-err'); // 404
-const EmailExistenceError = require('../errors/owner-err'); // 409
+const EmailExistenceError = require('../errors/email-err'); // 409
 
 // возвращает всех пользователей
 module.exports.getUsers = (req, res, next) => {
