@@ -34,9 +34,8 @@ mongoose.connect(BD_URL, { // подключение к mongodb
 // роуты, не требующие авторизации
 app.post('/signup', celebrate({ // регистрируемся и создаём пользователя
   body: Joi.object().keys({
-    email: Joi.string().min(2).max(30).required()
-      .email(),
-    password: Joi.string().min(2).max(30).required(),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
     name: Joi.string().default('Жак-Ив Кусто').min(2).max(30),
     about: Joi.string().default('Исследователь').min(2).max(30),
     avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png')
