@@ -19,7 +19,7 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => res.status(201).send(card))
     .catch((err) => { // если введённые данные некорректны, передаём сообщение об ошибке и код '400'
       if (err.name === 'ValidationError') {
-        throw new RequestError('Переданы некорректные данные карточки');
+        next(new RequestError('Переданы некорректные данные карточки'));
       }
       return next(err); // иначе, передаём ошибку в централизованный обработчик
     });
@@ -38,19 +38,18 @@ module.exports.deleteCard = (req, res, next) => {
       if (userId !== cardUserId) {
         throw new OwnerCardError('Вы можете удалить только свою карточку');
       }
-      return Card.findByIdAndRemove({ _id: cardId })
+      return Card.deleteOne(card)
         .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }));
     })
     .catch((err) => {
       if (err.message === 'CardNotFound') {
-        throw new NotFoundError('Карточка не найдена');
+        next(new NotFoundError('Карточка не найдена'));
       }
       if (err.name === 'CastError') {
-        throw new RequestError('Некорректный Id карточки');
+        next(new RequestError('Некорректный Id карточки'));
       }
       return next(err); // передаём ошибку в централизованный обработчик
-    })
-    .catch(next); // без 2го catch не сработало, но в других местах работает?
+    });
 };
 
 // поставить лайк карточке
@@ -68,7 +67,7 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new RequestError('Некорректный Id карточки');
+        next(new RequestError('Некорректный Id карточки'));
       }
       return next(err); // передаём ошибку в централизованный обработчик
     });
@@ -89,7 +88,7 @@ module.exports.dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new RequestError('Некорректный Id карточки');
+        next(new RequestError('Некорректный Id карточки'));
       }
       return next(err); // передаём ошибку в централизованный обработчик
     });
