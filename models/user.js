@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-      validate: {
+      validate: { // проверка на соответствие url
         validator: (value) => validator.isURL(value),
         message: 'Некорректный URL',
       },
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Поле "email" должно быть заполнено'],
       unique: true,
-      validate: {
+      validate: { // проверка на соответствие email
         validator: (value) => validator.isEmail(value),
         message: 'Некорректный Email',
       },
@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Поле "password" должно быть заполнено'],
     },
   },
-  { versionKey: false },
+  { versionKey: false }, // убирает поле '__v' из ответа
 );
 
 // добавим findUserByCredentials схеме пользователя; функция не стрелочная, т.к. нам нужен this

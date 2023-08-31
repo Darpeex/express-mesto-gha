@@ -9,12 +9,12 @@ const NotFoundError = require('../errors/not-found-err'); // 404
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.status(200).send({ data: cards })) // успешно, возвращаем карточки
-    .catch(next);
+    .catch(next); // переходим в центролизованный обработчик
 };
 
 // создаёт карточку
 module.exports.createCard = (req, res, next) => {
-  const { name, link } = req.body;
+  const { name, link } = req.body; // данные из тела запроса
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(201).send(card))
     .catch((err) => { // если введённые данные некорректны, передаём сообщение об ошибке и код '400'
@@ -32,8 +32,8 @@ module.exports.deleteCard = (req, res, next) => {
   return Card.findById({ _id: cardId })
     .orFail(new Error('CardNotFound'))
     .then((card) => {
-      const userId = req.user._id;
-      const cardUserId = card.owner.toString();
+      const userId = req.user._id; // строчный тип - далее сравниваем
+      const cardUserId = card.owner.toString(); // привели к строчному типу
 
       if (userId !== cardUserId) {
         throw new OwnerCardError('Вы можете удалить только свою карточку');
@@ -57,7 +57,7 @@ module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true },
+    { new: true }, // new - возвращает обновленный документ
   )
     .then((card) => {
       if (!card) {
@@ -78,7 +78,7 @@ module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },
+    { new: true }, // new - возвращает обновленный документ
   )
     .then((card) => {
       if (!card) {

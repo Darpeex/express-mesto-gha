@@ -1,4 +1,4 @@
-// класс ошибки собственника карты
+// экземпляр класса - ошибка карточка не ваша
 class OwnerCardError extends Error {
   constructor(message) {
     super(message);

@@ -1,4 +1,4 @@
-// класс с ошибкой авторизации
+// экземпляр класса - ошибка авторизации
 class AuthorizationError extends Error {
   constructor(message) {
     super(message);

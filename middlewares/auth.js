@@ -19,8 +19,8 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'); // проверяем подпись токена и расшифровываем
     req.user = payload; // записываем пейлоуд в объект запроса
-    next();
+    next(); // пееркидываем в обработчик catch
   } catch (err) {
-    next(err);
+    next(err); // перекидываем в центролизованный обработчки
   }
 };

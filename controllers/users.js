@@ -12,7 +12,7 @@ const EmailExistenceError = require('../errors/email-err'); // 409
 
 // возвращает всех пользователей
 module.exports.getUsers = (req, res, next) => {
-  User.find({})
+  User.find({}) // выбираем всех существующих пользователей в базе
     .then((users) => res.status(200).send(users))
     .catch(next);
 };
@@ -24,7 +24,7 @@ module.exports.getUserById = (req, res, next) => {
 
   return User.findById(userId)
     .then((user) => {
-      if (user === null) {
+      if (user === null) { // если значение пользователя = null
         throw new NotFoundError('Пользователь не найден');
       }
       return res.status(200).send(user);
@@ -39,27 +39,26 @@ module.exports.getUserById = (req, res, next) => {
 
 // создаёт пользователя
 module.exports.createUser = (req, res, next) => {
-  const { email, password } = req.body;
-  const { name, about, avatar } = req.body;
+  const { email, password } = req.body; // обязательные поля
+  const { name, about, avatar } = req.body; // необязательные
 
   if (!email || !password) {
     throw new RequestError('Все поля должны быть заполнены');
   }
   bcrypt.hash(password, 10, (error, hash) => { // хешируем пароль
-    User.findOne({ email }).select('+password')
+    User.findOne({ email }).select('+password') // добавляем пароль для проверки
       .then((user) => {
         if (user) {
           throw new EmailExistenceError('Даный email уже зарегистрирован');
         }
-        return User.create({ name, about, avatar, email, password: hash })
-          .then(() => {
-            res
-              .status(201)
-              .send({ name, about, avatar, email });
-          })
-          .catch((err) => next(err));
+        return User.create({ name, about, avatar, email, password: hash });
       })
-      .catch((err) => next(err));
+      .then(() => {
+        res
+          .status(201)
+          .send({ name, about, avatar, email });
+      })
+      .catch((err) => next(err)); // переходим в центролизованный обработчие
   });
 };
 
@@ -81,7 +80,7 @@ module.exports.updateUserInfo = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(new RequestError('Переданы некорректные данные пользователя'));
       } else { // иначе, по-умолчанию, ошибка с кодом '500'
-        return next(err);
+        return next(err); // переходим в центролизованный обработчик приложения
       }
     });
 };
@@ -102,7 +101,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(new RequestError('Переданы некорректные данные'));
       } else { // иначе, по-умолчанию, ошибка с кодом '500'
-        return next(err);
+        return next(err); // переходим в центролизованный обработчик
       }
     });
 };
@@ -122,7 +121,7 @@ module.exports.getUserInfo = (req, res, next) => {
       if (err.name === 'CastError') { // если тип ошибки совпадает с 'CastError'
         next(new RequestError('Некорректный Id пользователя'));
       }
-      return next(err);
+      return next(err); // переходим в центролизованный обработчик
     });
 };
 
@@ -147,5 +146,5 @@ module.exports.login = (req, res, next) => {
     .catch(() => { // ошибка аутентификации (присланный токен некорректен)
       throw new AuthorizationError('Ошибка аутентификации');
     })
-    .catch(next);
+    .catch(next); // переходим в центролизованный обработчик
 };

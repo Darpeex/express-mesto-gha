@@ -13,7 +13,7 @@ const cardSchema = new mongoose.Schema(
     },
     link: {
       type: String,
-      validate: {
+      validate: { // проверка на соответствие url
         validator: (v) => validator.isURL(v),
         message: 'Некорректный URL',
       },
@@ -30,12 +30,12 @@ const cardSchema = new mongoose.Schema(
       ],
       default: [],
     },
-    createdAt: {
+    createdAt: { // поле для хранения даты и времени создания документа
       type: Date,
-      default: Date.now(),
+      default: Date.now, // возвращает текущую дату и время
     },
   },
-  { versionKey: false },
+  { versionKey: false }, // убирает поле '__v' из ответа
 );
 
 const Card = mongoose.model('card', cardSchema); // создание модели

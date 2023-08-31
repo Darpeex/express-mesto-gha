@@ -1,4 +1,4 @@
-// класс с ошибкой - ресурс не найден
+// экземпляр класса - ошибка ресурс не найден
 class NotFoundError extends Error {
   constructor(message) {
     super(message);

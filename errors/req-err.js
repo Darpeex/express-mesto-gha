@@ -1,4 +1,4 @@
-// класс ошибки запроса
+// экземпляр класса - ошибка запроса
 class RequestError extends Error {
   constructor(message) {
     super(message);
