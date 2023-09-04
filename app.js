@@ -5,6 +5,9 @@ const mongoose = require('mongoose'); // модуль для работы с б�
 const { errors } = require('celebrate'); // мидлвэр для ошибок валидации полей
 require('dotenv').config(); // модуль для получения данных из файла .env
 
+// логгер
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+
 // контроллеры для создания пользователя, аутентификации и авторизации
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -39,6 +42,9 @@ mongoose.connect(BD_URL, { // подключение к mongodb
   useNewUrlParser: true, // обеспечивает совместимость с будущими версиями MongoDB
 }).then(() => console.log('Подключились к БД'));
 
+// логгер запросов
+app.use(requestLogger);
+
 // роуты, не требующие авторизации
 app.post('/signup', signupValidator, createUser); // регистрируемся
 app.post('/signin', signinValidator, login); // заходим под пользователя
@@ -49,6 +55,9 @@ app.use(auth);
 // роуты, которым авторизация нужна
 app.use(userRouter);
 app.use(cardRouter);
+
+// логгер ошибок
+app.use(errorLogger);
 
 // обработчик ошибок celebrate от валидации joi
 app.use(errors());
